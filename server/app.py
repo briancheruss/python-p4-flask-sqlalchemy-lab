@@ -1,34 +1,45 @@
 #!/usr/bin/env python3
 
-from flask import Flask, make_response
+from flask import Flask, render_template
 from flask_migrate import Migrate
-
-from models import db, Zookeeper, Enclosure, Animal
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-db.init_app(app)
+class Animal(db.Model):
+    # Your Animal model definition goes here
 
-@app.route('/')
-def home():
-    return '<h1>Zoo app</h1>'
+    class Zookeeper(db.Model):
+    # Your Zookeeper model definition goes here
+
+     class Enclosure(db.Model):
+      id = db.Column(db.Integer, primary_key=True)
+      environment = db.Column(db.String(255))
+      open_to_visitors = db.Column(db.Boolean)
+    # Add other columns as needed
+
+    # Establishing the relationship with Animal
+    animals = db.relationship('Animal', backref='enclosure', lazy=True)
+
+
+    @app.route('/')
+    def home():
+     return '<h1>Zoo app</h1>'
 
 @app.route('/animal/<int:id>')
 def animal_by_id(id):
-    return ''
+    # Placeholder: Query the database to get the animal with the specified ID
+    animal = Animal.query.get(id)
 
-@app.route('/zookeeper/<int:id>')
-def zookeeper_by_id(id):
-    return ''
+    # Placeholder: Render HTML template or generate HTML response based on the animal data
+    return render_template('animal.html', animal=animal)
 
-@app.route('/enclosure/<int:id>')
-def enclosure_by_id(id):
-    return ''
-
+# ... (similar placeholders for other route implementations)
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
